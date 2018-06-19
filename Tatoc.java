@@ -1,17 +1,19 @@
-package assignment;
+package test;
+import java.util.*;
+
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.chrome.ChromeDriver; 			// firefox.FirefoxDriver for firefox
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.Cookie;
 
 public class Tatoc {
 
 	public static void main (String args[])
 	{
-		System.setProperty("webdriver.firefox.marionette","/root/Downloads/geckodriver");
-		WebDriver driver = new FirefoxDriver();
+		WebDriver driver = new ChromeDriver();
 		driver.get("http://10.0.1.86/tatoc");
 		driver.findElement(By.linkText("Basic Course")).click();
 		driver.findElement(By.className("greenbox")).click();
@@ -21,7 +23,7 @@ public class Tatoc {
 		{
 			driver.switchTo().frame("child");
 			str2 = driver.findElement(By.id("answer")).getAttribute("className");
-			if (str.equals(str2)) 
+			if (str.equalsIgnoreCase(str2)) 
 			{
 				driver.switchTo().parentFrame();
 				driver.findElement(By.linkText("Proceed")).click();
@@ -36,6 +38,27 @@ public class Tatoc {
 		act.dragAndDrop(from, to).build().perform();
 		driver.findElement(By.linkText("Proceed")).click();
 		driver.findElement(By.linkText("Launch Popup Window")).click();
-		
+		String MainWindow = driver.getWindowHandle();
+		Set<String> windows = driver.getWindowHandles();
+		Iterator<String> it = windows.iterator();
+		while(it.hasNext())
+		{
+			// next -> returns next element
+			String ChildWindow = it.next();	
+			driver.switchTo().window(ChildWindow);	
+			if(!MainWindow.equalsIgnoreCase(ChildWindow))	
+			{                                                                                                  
+	           		driver.findElement(By.id("name")).sendKeys("lokesh");
+	            		driver.findElement(By.id("submit")).click();
+	            		break;
+			}
+		}
+		driver.switchTo().window(MainWindow);
+		driver.findElement(By.linkText("Proceed")).click();
+		driver.findElement(By.linkText("Generate Token")).click();
+		String Cookie_val = driver.findElement(By.id("token")).getText();
+		Cookie ck = new Cookie("Token", Cookie_val.substring(7));
+		driver.manage().addCookie(ck);
+		driver.findElement(By.linkText("Proceed")).click();
 	}
 }
